@@ -1,0 +1,10 @@
+{
+  "cordova-plugin-android-payment": {
+    "source": {
+      "type": "local",
+      "path": "/Users/inmobly/Work/cordova-plugin-android-payment/test/node_modules/cordova-plugin-android-payment"
+    },
+    "is_top_level": true,
+    "variables": {}
+  }
+}

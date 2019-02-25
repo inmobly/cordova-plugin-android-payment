@@ -1,0 +1,12 @@
+{
+  "name": "cordova-plugin-android-payment",
+  "version": "0.1.0",
+  "description": "Plugin for android payment targeting android tv",
+  "cordova": {
+    "id": "cordova-plugin-android-payment",
+    "platforms": [
+      "android"
+    ]
+  },
+  "author": "Inmobly"
+}
