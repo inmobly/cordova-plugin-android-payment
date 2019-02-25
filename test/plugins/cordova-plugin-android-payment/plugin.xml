@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+        id="cordova-plugin-android-payment"
+        version="0.1">
+
+  <name>Android Payment</name>
+
+  <engines>
+    <engine name="cordova" version=">=7.0.0"/>
+  </engines>
+
+  <asset src="www/AndroidPayment.js" target="js/AndroidPayment.js"/>
+
+  <js-module src="www/AndroidPayment.js" name="AndroidPayment">
+    <clobbers target="AndroidPayment" />
+  </js-module>
+
+  <platform name="android">
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="AndroidPayment">
+        <param name="android-package" value="com.inmobly.ott.android_payment.AndroidPayment"/>
+      </feature>
+    </config-file>
+
+    <framework src="com.android.billingclient:billing:1.0" />
+    <config-file target="app/src/main/AndroidManifest.xml" parent="/manifest">
+      <uses-permission android:name="com.android.vending.BILLING" />
+    </config-file>
+
+    <source-file src="src/android/AndroidPayment.java" target-dir="src/com/inmobly/ott/android_payment/"/>
+    <source-file src="src/android/BillingManager.java" target-dir="src/com/inmobly/ott/android_payment/"/>
+    <source-file src="src/android/IabPaymentController.java" target-dir="src/com/inmobly/ott/android_payment/"/>
+    <source-file src="src/android/Security.java" target-dir="src/com/inmobly/ott/android_payment/"/>
+  </platform>
+</plugin>
