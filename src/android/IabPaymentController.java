@@ -54,6 +54,11 @@ public final class IabPaymentController implements BillingManager.BillingUpdates
 
     }
 
+    @Override
+    public void onPurchaseCancelled() {
+        pendingListener.onFailed(new JSONObject());
+    }
+
     public final void payForPackage(String packageId, Listener listener) {
         pendingId = packageId;
         pendingType = BillingClient.SkuType.SUBS;
