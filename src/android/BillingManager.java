@@ -45,11 +45,13 @@ import java.util.Set;
  */
 public class BillingManager implements PurchasesUpdatedListener {
     // Default value of mBillingClientResponseCode until BillingManager was not yeat initialized
-    public static final int BILLING_MANAGER_NOT_INITIALIZED  = -1;
+    public static final int BILLING_MANAGER_NOT_INITIALIZED = -1;
 
     private static final String TAG = "BillingManager";
 
-    /** A reference to BillingClient **/
+    /**
+     * A reference to BillingClient
+     **/
     private BillingClient mBillingClient;
 
     /**
@@ -66,6 +68,8 @@ public class BillingManager implements PurchasesUpdatedListener {
     private Set<String> mTokensToBeConsumed;
 
     private int mBillingClientResponseCode = BILLING_MANAGER_NOT_INITIALIZED;
+
+    private String mEncodedPublicKey;
 
     /* BASE_64_ENCODED_PUBLIC_KEY should be YOUR APPLICATION'S PUBLIC KEY
      * (that you got from the Google Play developer console). This is not your
@@ -86,9 +90,12 @@ public class BillingManager implements PurchasesUpdatedListener {
      */
     public interface BillingUpdatesListener {
         void onBillingClientSetupFinished();
+
         void onConsumeFinished(String token, @BillingResponse int result);
+
         void onPurchasesUpdated(List<Purchase> purchases);
-	void onPurchaseCancelled();
+
+        void onPurchaseCancelled();
     }
 
     /**
@@ -98,12 +105,13 @@ public class BillingManager implements PurchasesUpdatedListener {
         void onServiceConnected(@BillingResponse int resultCode);
     }
 
-    public BillingManager(Activity activity, final BillingUpdatesListener updatesListener) {
+    public BillingManager(Activity activity, final BillingUpdatesListener updatesListener,
+                          String encodedPublicKey) {
         Log.d(TAG, "Creating Billing client.");
         mActivity = activity;
         mBillingUpdatesListener = updatesListener;
         mBillingClient = BillingClient.newBuilder(mActivity).setListener(this).build();
-
+        mEncodedPublicKey = encodedPublicKey;
         Log.d(TAG, "Starting setup.");
 
         // Start setup. This is asynchronous and the specified listener will be called
@@ -136,8 +144,8 @@ public class BillingManager implements PurchasesUpdatedListener {
             mBillingUpdatesListener.onPurchaseCancelled();
         } else {
             Log.w(TAG, "onPurchasesUpdated() got unknown resultCode: " + resultCode);
-            mBillingUpdatesListener.onPurchaseCancelled();        
-	}
+            mBillingUpdatesListener.onPurchaseCancelled();
+        }
     }
 
     /**
@@ -151,7 +159,7 @@ public class BillingManager implements PurchasesUpdatedListener {
      * Start a purchase or subscription replace flow
      */
     public void initiatePurchaseFlow(final String skuId, final ArrayList<String> oldSkus,
-            final @SkuType String billingType) {
+                                     final @SkuType String billingType) {
         Runnable purchaseFlowRequest = new Runnable() {
             @Override
             public void run() {
@@ -253,6 +261,7 @@ public class BillingManager implements PurchasesUpdatedListener {
      * It's recommended to move this check into your backend.
      * See {@link Security#verifyPurchase(String, String, String)}
      * </p>
+     *
      * @param purchase Purchase to be handled
      */
     private void handlePurchase(Purchase purchase) {
@@ -381,13 +390,13 @@ public class BillingManager implements PurchasesUpdatedListener {
     private boolean verifyValidSignature(String signedData, String signature) {
         // Some sanity checks to see if the developer (that's you!) really followed the
         // instructions to run this sample (don't put these checks on your app!)
-        if (BASE_64_ENCODED_PUBLIC_KEY.contains("CONSTRUCT_YOUR")) {
+        if (mEncodedPublicKey.contains("CONSTRUCT_YOUR")) {
             throw new RuntimeException("Please update your app's public key at: "
                     + "BASE_64_ENCODED_PUBLIC_KEY");
         }
 
         try {
-            return Security.verifyPurchase(BASE_64_ENCODED_PUBLIC_KEY, signedData, signature);
+            return Security.verifyPurchase(mEncodedPublicKey, signedData, signature);
         } catch (IOException e) {
             Log.e(TAG, "Got an exception trying to validate a purchase: " + e);
             return false;
