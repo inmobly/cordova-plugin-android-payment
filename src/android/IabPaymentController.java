@@ -59,20 +59,28 @@ public final class IabPaymentController implements BillingManager.BillingUpdates
         pendingListener.onFailed(new JSONObject());
     }
 
-    public final void payForPackage(String packageId, Listener listener) {
+    public final void payForPackage(String packageId, Listener listener, List<String> allPackages) {
         pendingId = packageId;
         pendingType = BillingClient.SkuType.SUBS;
         pendingListener = listener;
 
         ArrayList<String> oldList = new ArrayList<>();
         if (purchases != null)
-          for (Purchase it : purchases) {
-              if (it.isAutoRenewing()) {
-                  oldList.add(it.getSku());
-              }
-          }
+            for (Purchase it : purchases) {
+                if (it.isAutoRenewing() && isPackage(it.getSku(), allPackages)) {
+                    oldList.add(it.getSku());
+                }
+            }
 
         billingManager.initiatePurchaseFlow(packageId, oldList.isEmpty() ? null : oldList, BillingClient.SkuType.SUBS);
+    }
+
+    private boolean isPackage(String sku, List<String> allPackages) {
+        for (int i = 0; i < allPackages.size(); i++) {
+            if (sku.equals(allPackages.get(i)))
+                return true;
+        }
+        return false;
     }
 
     public final void cancel() {
@@ -97,8 +105,8 @@ public final class IabPaymentController implements BillingManager.BillingUpdates
         }
     }
 
-    public IabPaymentController(Activity activity) {
-        this.billingManager = new BillingManager(activity, this);
+    public IabPaymentController(Activity activity, String encodedPublicKey) {
+        this.billingManager = new BillingManager(activity, this, encodedPublicKey);
     }
 
     public interface Listener {
